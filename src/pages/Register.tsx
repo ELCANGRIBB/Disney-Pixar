@@ -113,8 +113,8 @@ export default function Register() {
       setError('Las contraseñas no coinciden');
       return;
     }
-    if (!formData.withdrawalPin.trim() || formData.withdrawalPin.length !== 4) {
-      setError('La clave de retiro debe tener 4 dígitos');
+    if (!formData.withdrawalPin.trim() || formData.withdrawalPin.length !== 6) {
+      setError('La clave de retiro debe tener 6 dígitos');
       return;
     }
 
@@ -363,18 +363,18 @@ export default function Register() {
             {/* Withdrawal PIN */}
             <div>
               <label className="text-xs font-semibold uppercase tracking-wider block mb-2" style={{ color: '#FFC107' }}>
-                Clave de Retiro (4 dígitos)
+                Clave de Retiro (6 dígitos)
               </label>
               <input
                 type="text"
                 name="withdrawalPin"
-                placeholder="0000"
+                placeholder="000000"
                 value={formData.withdrawalPin}
                 onChange={(e) => {
-                  const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+                  const val = e.target.value.replace(/\D/g, '').slice(0, 6);
                   setFormData(prev => ({ ...prev, withdrawalPin: val }));
                 }}
-                maxLength={4}
+                maxLength={6}
                 className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-gray-500 transition-all duration-300 focus:outline-none"
                 style={{
                   background: '#0F0F0F',

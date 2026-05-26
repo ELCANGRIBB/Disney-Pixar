@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Copy, Check, Home, Zap, Play, Users, User } from 'lucide-react';
 
 export default function Perfil() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [activeTab, setActiveTab] = useState('profile');
   const [copied, setCopied] = useState(false);
 
@@ -10,6 +11,74 @@ export default function Perfil() {
   const invitationLink = 'https://myyaguar.pro/user/register?ref=MTkxNT...';
   const appName = 'MyYaguar';
 
+  const [particles] = useState(() =>
+    Array.from({ length: 15 }, (_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      delay: Math.random() * 8,
+      duration: 8 + Math.random() * 4,
+      size: 4 + Math.random() * 4,
+    }))
+  );
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const stars: { x: number; y: number; radius: number; opacity: number; twinkleSpeed: number }[] = [];
+    const numStars = 200;
+
+    for (let i = 0; i < numStars; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 1.5 + 0.5,
+        opacity: Math.random(),
+        twinkleSpeed: 0.005 + Math.random() * 0.01,
+      });
+    }
+
+    let animationId: number;
+
+    const animate = () => {
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      stars.forEach((star) => {
+        star.opacity += star.twinkleSpeed;
+        if (star.opacity > 1 || star.opacity < 0) {
+          star.twinkleSpeed = -star.twinkleSpeed;
+        }
+
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 215, 0, ${Math.abs(star.opacity)})`;
+        ctx.fill();
+      });
+
+      animationId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      cancelAnimationFrame(animationId);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
   const handleCopy = () => {
     navigator.clipboard.writeText(invitationLink).catch(() => {});
     setCopied(true);
@@ -17,131 +86,124 @@ export default function Perfil() {
   };
 
   return (
-    <div className="min-h-screen pb-24" style={{ background: '#000000' }}>
-      {/* Background gradient accent */}
-      <div
-        className="absolute top-0 left-0 w-full h-64 pointer-events-none"
-        style={{
-          background: 'radial-gradient(circle at center top, rgba(255,193,7,0.08) 0%, transparent 70%)',
-        }}
-      />
+    <div className="relative min-h-screen overflow-hidden pb-24" style={{ background: '#000000' }}>
+      <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />
+
+      {particles.map((particle) => (
+        <div
+          key={particle.id}
+          className="absolute rounded-full float-up"
+          style={{
+            left: `${particle.left}%`,
+            bottom: '-20px',
+            width: `${particle.size}px`,
+            height: `${particle.size}px`,
+            background: `radial-gradient(circle, rgba(255, 215, 0, 0.8) 0%, rgba(255, 193, 7, 0.4) 50%, transparent 100%)`,
+            animationDelay: `${particle.delay}s`,
+            animationDuration: `${particle.duration}s`,
+          }}
+        />
+      ))}
 
       <div className="relative z-10 px-4 pt-6">
         {/* Profile Card */}
         <div
           className="rounded-3xl overflow-hidden shadow-2xl"
           style={{
-            background: 'linear-gradient(135deg, rgba(26,26,26,0.8) 0%, rgba(15,15,15,0.8) 100%)',
+            background: 'linear-gradient(135deg, rgba(26,26,26,0.6) 0%, rgba(15,15,15,0.6) 100%)',
             border: '1px solid rgba(255,193,7,0.2)',
+            backdropFilter: 'blur(10px)',
           }}
         >
-          {/* Background Image Section */}
-          <div className="relative h-40 overflow-hidden">
-            <img
-              src="https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg?auto=compress&cs=tinysrgb&w=800"
-              alt="Background"
-              className="w-full h-full object-cover"
-            />
+          {/* Golden Circle with ID */}
+          <div className="flex justify-center pt-8 pb-4">
             <div
-              className="absolute inset-0"
+              className="w-32 h-32 rounded-full flex items-center justify-center relative pulse-gold"
               style={{
-                background: 'linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.6) 100%)',
+                background: 'conic-gradient(from 0deg, rgba(255,193,7,0.6), rgba(255,215,0,0.8), rgba(255,193,7,0.6))',
+                boxShadow: '0 0 40px rgba(255,193,7,0.4), inset 0 0 30px rgba(255,193,7,0.2)',
               }}
-            />
-          </div>
-
-          {/* User ID Circle and Phone - Overlapping */}
-          <div className="relative px-6 pb-8">
-            {/* Golden Circle with ID - Positioned to overlap background */}
-            <div className="flex justify-center -mt-20 mb-4 relative z-20">
+            >
               <div
-                className="w-32 h-32 rounded-full flex items-center justify-center relative"
-                style={{
-                  background: 'conic-gradient(from 0deg, rgba(255,193,7,0.6), rgba(255,215,0,0.8), rgba(255,193,7,0.6))',
-                  boxShadow: '0 0 40px rgba(255,193,7,0.4), inset 0 0 30px rgba(255,193,7,0.2)',
-                }}
+                className="w-28 h-28 rounded-full flex items-center justify-center"
+                style={{ background: '#000000' }}
               >
-                <div
-                  className="w-28 h-28 rounded-full flex items-center justify-center"
-                  style={{ background: '#000000' }}
-                >
-                  <div className="text-center">
-                    <div
-                      className="font-black text-2xl leading-tight"
-                      style={{ color: '#FFD700' }}
-                    >
-                      {userId}
-                    </div>
+                <div className="text-center">
+                  <div
+                    className="font-black text-2xl leading-tight"
+                    style={{ color: '#FFD700' }}
+                  >
+                    {userId}
                   </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Phone Number */}
-            <div className="flex items-center justify-center gap-2 mb-6">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFC107" strokeWidth="2">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-              </svg>
-              <span
-                className="font-bold text-sm"
-                style={{ color: '#FFC107' }}
-              >
-                {phoneNumber}
-              </span>
+          {/* Phone Number */}
+          <div className="flex items-center justify-center gap-2 py-4">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFC107" strokeWidth="2">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+            </svg>
+            <span
+              className="font-bold text-sm"
+              style={{ color: '#FFC107' }}
+            >
+              {phoneNumber}
+            </span>
+          </div>
+
+          {/* Invitation Link Section */}
+          <div className="px-6 pb-8 space-y-3">
+            <div
+              className="text-xs font-black text-center tracking-widest"
+              style={{ color: '#B8860B' }}
+            >
+              ENLACE DE INVITACION
             </div>
 
-            {/* Invitation Link Section */}
-            <div className="space-y-3">
+            {/* Copy Input Container */}
+            <div className="flex gap-2">
               <div
-                className="text-xs font-black text-center tracking-widest"
-                style={{ color: '#B8860B' }}
+                className="flex-1 flex items-center px-4 py-3 rounded-2xl"
+                style={{
+                  background: 'rgba(255,255,255,0.02)',
+                  border: '1px solid rgba(255,193,7,0.3)',
+                }}
               >
-                ENLACE DE INVITACIÓN
+                <span
+                  className="text-xs font-medium truncate"
+                  style={{ color: '#888888' }}
+                >
+                  {invitationLink}
+                </span>
               </div>
 
-              {/* Copy Input Container */}
-              <div className="flex gap-2">
-                <div
-                  className="flex-1 flex items-center px-4 py-3 rounded-2xl"
-                  style={{
-                    background: 'rgba(255,255,255,0.02)',
-                    border: '1px solid rgba(255,193,7,0.3)',
-                  }}
-                >
-                  <span
-                    className="text-xs font-medium truncate"
-                    style={{ color: '#888888' }}
-                  >
-                    {invitationLink}
-                  </span>
-                </div>
-
-                <button
-                  onClick={handleCopy}
-                  className="px-6 py-3 rounded-2xl font-black text-sm transition-all duration-200 flex items-center gap-2 active:scale-95"
-                  style={{
-                    background: copied
-                      ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
-                      : 'linear-gradient(135deg, #FFD700 0%, #FFC107 100%)',
-                    color: copied ? 'white' : '#000000',
-                    boxShadow: copied
-                      ? '0 0 20px rgba(34,197,94,0.3)'
-                      : '0 0 20px rgba(255,193,7,0.3)',
-                  }}
-                >
-                  {copied ? (
-                    <>
-                      <Check size={16} />
-                      <span className="hidden sm:inline">OK</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy size={16} />
-                      <span>COPIAR</span>
-                    </>
-                  )}
-                </button>
-              </div>
+              <button
+                onClick={handleCopy}
+                className="px-6 py-3 rounded-2xl font-black text-sm transition-all duration-200 flex items-center gap-2 active:scale-95"
+                style={{
+                  background: copied
+                    ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
+                    : 'linear-gradient(135deg, #FFD700 0%, #FFC107 100%)',
+                  color: copied ? 'white' : '#000000',
+                  boxShadow: copied
+                    ? '0 0 20px rgba(34,197,94,0.3)'
+                    : '0 0 20px rgba(255,193,7,0.3)',
+                }}
+              >
+                {copied ? (
+                  <>
+                    <Check size={16} />
+                    <span className="hidden sm:inline">OK</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy size={16} />
+                    <span>COPIAR</span>
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>
@@ -153,12 +215,12 @@ export default function Perfil() {
               <div
                 className="rounded-2xl p-4"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(26,26,26,0.6) 0%, rgba(15,15,15,0.6) 100%)',
+                  background: 'linear-gradient(135deg, rgba(26,26,26,0.4) 0%, rgba(15,15,15,0.4) 100%)',
                   border: '1px solid rgba(255,193,7,0.15)',
                 }}
               >
                 <div className="text-xs font-semibold mb-2" style={{ color: '#888888' }}>
-                  INFORMACIÓN DEL PERFIL
+                  INFORMACION DEL PERFIL
                 </div>
                 <div className="text-sm text-white">
                   Bienvenido a {appName}. Tu ID de usuario es: <span style={{ color: '#FFC107' }}>{userId}</span>
@@ -178,7 +240,6 @@ export default function Perfil() {
           borderTop: '1px solid rgba(255,193,7,0.1)',
         }}
       >
-        {/* Home */}
         <NavItem
           icon={<Home size={24} />}
           label="Inicio"
@@ -186,7 +247,6 @@ export default function Perfil() {
           onClick={() => setActiveTab('home')}
         />
 
-        {/* Levels */}
         <NavItem
           icon={<Zap size={24} />}
           label="Niveles"
@@ -194,7 +254,6 @@ export default function Perfil() {
           onClick={() => setActiveTab('levels')}
         />
 
-        {/* Tasks - Center Active Button */}
         <div className="flex flex-col items-center gap-1 relative">
           <button
             onClick={() => setActiveTab('tasks')}
@@ -232,7 +291,6 @@ export default function Perfil() {
           </span>
         </div>
 
-        {/* Team */}
         <NavItem
           icon={<Users size={24} />}
           label="Equipo"
@@ -240,7 +298,6 @@ export default function Perfil() {
           onClick={() => setActiveTab('team')}
         />
 
-        {/* Profile */}
         <NavItem
           icon={<User size={24} />}
           label="Yo"

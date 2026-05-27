@@ -1,9 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Sparkles } from 'lucide-react';
 
+interface Particle {
+  id: number;
+  x: number;
+  y: number;
+  size: number;
+  speed: number;
+  opacity: number;
+  delay: number;
+}
+
+function generateParticles(count: number): Particle[] {
+  return Array.from({ length: count }, (_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    size: Math.random() * 3 + 1,
+    speed: Math.random() * 20 + 15,
+    opacity: Math.random() * 0.6 + 0.2,
+    delay: Math.random() * 10,
+  }));
+}
+
 export default function Register() {
   const navigate = useNavigate();
+  const [particles] = useState(() => generateParticles(60));
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
@@ -17,6 +41,52 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
 
   const referralCode = 'VIP-DISNEY-2026';
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    const stars: { x: number; y: number; r: number; alpha: number; speed: number }[] = [];
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    for (let i = 0; i < 120; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.5 + 0.3,
+        alpha: Math.random(),
+        speed: Math.random() * 0.005 + 0.002,
+      });
+    }
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      stars.forEach((s) => {
+        s.alpha += s.speed;
+        if (s.alpha > 1 || s.alpha < 0) s.speed *= -1;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 193, 7, ${s.alpha * 0.7})`;
+        ctx.fill();
+      });
+      animId = requestAnimationFrame(draw);
+    };
+    draw();
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', resize);
+    };
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -43,8 +113,8 @@ export default function Register() {
       setError('Las contraseñas no coinciden');
       return;
     }
-    if (!formData.withdrawalPin.trim() || formData.withdrawalPin.length !== 4) {
-      setError('La clave de retiro debe tener 4 dígitos');
+    if (!formData.withdrawalPin.trim() || formData.withdrawalPin.length !== 6) {
+      setError('La clave de retiro debe tener 6 dígitos');
       return;
     }
 
@@ -57,6 +127,30 @@ export default function Register() {
 
   return (
     <div className="relative min-h-screen overflow-x-hidden" style={{ background: '#000000' }}>
+      <canvas
+        ref={canvasRef}
+        className="fixed inset-0 pointer-events-none z-0"
+        style={{ opacity: 0.8 }}
+      />
+
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        {particles.map((p) => (
+          <div
+            key={p.id}
+            className="absolute rounded-full"
+            style={{
+              left: `${p.x}%`,
+              top: `${p.y}%`,
+              width: `${p.size}px`,
+              height: `${p.size}px`,
+              background: '#FFC107',
+              opacity: p.opacity,
+              animation: `floatUp ${p.speed}s ${p.delay}s linear infinite`,
+            }}
+          />
+        ))}
+      </div>
+
       {/* Ambient glow blobs */}
       <div
         className="fixed pointer-events-none z-0"
@@ -269,18 +363,18 @@ export default function Register() {
             {/* Withdrawal PIN */}
             <div>
               <label className="text-xs font-semibold uppercase tracking-wider block mb-2" style={{ color: '#FFC107' }}>
-                Clave de Retiro (4 dígitos)
+                Clave de Retiro (6 dígitos)
               </label>
               <input
                 type="text"
                 name="withdrawalPin"
-                placeholder="0000"
+                placeholder="000000"
                 value={formData.withdrawalPin}
                 onChange={(e) => {
-                  const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+                  const val = e.target.value.replace(/\D/g, '').slice(0, 6);
                   setFormData(prev => ({ ...prev, withdrawalPin: val }));
                 }}
-                maxLength={4}
+                maxLength={6}
                 className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-gray-500 transition-all duration-300 focus:outline-none"
                 style={{
                   background: '#0F0F0F',
@@ -379,6 +473,15 @@ export default function Register() {
         </div>
 
       </div>
+
+      <style>{`
+        @keyframes floatUp {
+          0%   { transform: translateY(0px) scale(1); opacity: 0; }
+          10%  { opacity: 1; }
+          90%  { opacity: 0.6; }
+          100% { transform: translateY(-100vh) scale(0.5); opacity: 0; }
+        }
+      `}</style>
     </div>
   );
 }

@@ -115,6 +115,66 @@ export default function Niveles() {
             investment="$4,700,000"
             isLocked
           />
+
+          {/* CARD 6: J5 (Locked Theme) */}
+          <LevelCard
+            title="J5"
+            timeCommitment="365 días"
+            monthlyIncome="$13,800,000"
+            dailyIncome="$460,000"
+            yearlyIncome="$167,900,000"
+            dailyTasks={50}
+            investment="$12,800,000"
+            isLocked
+          />
+
+          {/* CARD 7: J6 (Locked Theme) */}
+          <LevelCard
+            title="J6"
+            timeCommitment="365 días"
+            monthlyIncome="$33,600,000"
+            dailyIncome="$1,120,000"
+            yearlyIncome="$408,800,000"
+            dailyTasks={80}
+            investment="$31,000,000"
+            isLocked
+          />
+
+          {/* CARD 8: J7 (Locked Theme) */}
+          <LevelCard
+            title="J7"
+            timeCommitment="365 días"
+            monthlyIncome="$72,000,000"
+            dailyIncome="$2,400,000"
+            yearlyIncome="$876,000,000"
+            dailyTasks={150}
+            investment="$67,200,000"
+            isLocked
+          />
+
+          {/* CARD 9: J8 (Locked Theme) */}
+          <LevelCard
+            title="J8"
+            timeCommitment="365 días"
+            monthlyIncome="$150,000,000"
+            dailyIncome="$5,000,000"
+            yearlyIncome="$1,825,000,000"
+            dailyTasks={250}
+            investment="$135,000,000"
+            isLocked
+          />
+
+          {/* CARD 10: J9 (Locked Theme) */}
+          <LevelCard
+            title="J9"
+            timeCommitment="365 días"
+            monthlyIncome="$375,000,000"
+            dailyIncome="$12,500,000"
+            yearlyIncome="$4,562,500,000"
+            dailyTasks={500}
+            investment="$325,000,000"
+            isLocked
+          />
         </div>
 
         {/* Selected Level Indicator */}
@@ -153,8 +213,8 @@ function LevelCard({
       className="rounded-3xl p-5 transition-all duration-300"
       style={{
         background: isLocked ? '#0a0a0a' : '#1A1A1A',
-        border: `1px solid ${isLocked ? 'rgba(255,255,255,0.1)' : (isFree ? 'rgba(34, 197, 94, 0.4)' : 'rgba(234, 179, 8, 0.4)')}`,
-        boxShadow: isLocked ? 'none' : `0 0 30px ${glowColor}, inset 0 1px 0 rgba(255,255,255,0.03)`,
+        border: `1px solid ${isFree ? 'rgba(34, 197, 94, 0.4)' : 'rgba(234, 179, 8, 0.4)'}`,
+        boxShadow: `0 0 30px ${glowColor}, inset 0 1px 0 rgba(255,255,255,0.03)`,
         opacity: isLocked ? 0.6 : 1,
       }}
     >
@@ -248,7 +308,7 @@ function LevelCard({
       <div className="flex justify-between items-center mb-4 px-1">
         <div className="flex items-center gap-1">
           <span className="text-xs" style={{ color: '#888888' }}>Tareas Diarias:</span>
-          <span className="text-xs font-bold text-white">{dailyTasks}</span>
+          <span className="text-xs font-bold" style={{ color: isLocked ? themeColor : '#FFFFFF' }}>{dailyTasks}</span>
         </div>
         <div className="flex items-center gap-1">
           <span className="text-xs" style={{ color: '#888888' }}>

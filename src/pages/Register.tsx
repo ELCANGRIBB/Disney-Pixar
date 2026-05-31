@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Sparkles } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface Particle {
   id: number;
@@ -24,6 +25,15 @@ function generateParticles(count: number): Particle[] {
   }));
 }
 
+function generateReferralCode(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = 'VIP-';
+  for (let i = 0; i < 8; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
 export default function Register() {
   const navigate = useNavigate();
   const [particles] = useState(() => generateParticles(60));
@@ -39,8 +49,7 @@ export default function Register() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const referralCode = 'VIP-DISNEY-2026';
+  const [referralCode] = useState(() => generateReferralCode());
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -119,10 +128,48 @@ export default function Register() {
     }
 
     setLoading(true);
-    setTimeout(() => {
-      navigate('/perfil');
+
+    try {
+      const email = `user_${formData.phone}@disney.local`;
+
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password: formData.password,
+      });
+
+      if (authError) {
+        setError(authError.message);
+        setLoading(false);
+        return;
+      }
+
+      if (authData.user) {
+        const { error: insertError } = await supabase
+          .from('users')
+          .insert({
+            id: authData.user.id,
+            email,
+            full_name: formData.fullName,
+            phone: formData.phone,
+            referral_code: referralCode,
+            withdrawal_pin: formData.withdrawalPin,
+            balance: 0,
+            level: 'PASANTIA',
+          });
+
+        if (insertError) {
+          setError('Error al crear el perfil. Intenta de nuevo.');
+          setLoading(false);
+          return;
+        }
+
+        navigate('/perfil');
+      }
+    } catch (err) {
+      setError('Error inesperado. Intenta de nuevo.');
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -395,7 +442,7 @@ export default function Register() {
             {/* Automatic Referral */}
             <div>
               <label className="text-xs font-semibold uppercase tracking-wider block mb-2" style={{ color: '#FFC107' }}>
-                Referido Automático
+                Tu Código de Referido
               </label>
               <div
                 className="w-full px-4 py-3 rounded-xl text-sm font-bold text-center"
@@ -410,7 +457,7 @@ export default function Register() {
                 {referralCode}
               </div>
               <p className="text-xs mt-2" style={{ color: '#888888' }}>
-                Beneficio exclusivo pre-aplicado. No se puede modificar.
+                Tu código único para referir amigos. Se genera automáticamente.
               </p>
             </div>
 

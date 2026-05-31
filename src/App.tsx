@@ -3,6 +3,10 @@ import Welcome from './pages/Welcome';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import Perfil from './pages/Perfil';
+import Inicio from './pages/Inicio';
+import Niveles from './pages/Niveles';
+import Tareas from './pages/Tareas';
+import Equipo from './pages/Equipo';
 
 export default function App() {
   return (
@@ -12,6 +16,10 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/perfil" element={<Perfil />} />
+        <Route path="/inicio" element={<Inicio />} />
+        <Route path="/niveles" element={<Niveles />} />
+        <Route path="/tareas" element={<Tareas />} />
+        <Route path="/equipo" element={<Equipo />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

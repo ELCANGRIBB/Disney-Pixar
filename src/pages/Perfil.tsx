@@ -1,44 +1,30 @@
-import { useState } from 'react';
-import { Copy, Check, Home, Zap, Play, Users, User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Home, Zap, Play, Users, User } from 'lucide-react';
 
 export default function Perfil() {
-  const [activeTab, setActiveTab] = useState('profile');
-  const [copied, setCopied] = useState(false);
-
-  const userId = '3207408336';
-  const phoneNumber = '3207408336';
-  const invitationLink = 'https://myyaguar.pro/user/register?ref=MTkxNT...';
-  const appName = 'MyYaguar';
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(invitationLink).catch(() => {});
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen pb-24" style={{ background: '#000000' }}>
       <div className="relative z-10 px-4 pt-6">
         {/* Content Area */}
-        <div>
-          {activeTab === 'profile' && (
-            <div className="space-y-4">
-              <div
-                className="rounded-2xl p-4"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(26,26,26,0.6) 0%, rgba(15,15,15,0.6) 100%)',
-                  border: '1px solid rgba(255,193,7,0.15)',
-                }}
-              >
-                <div className="text-xs font-semibold mb-2" style={{ color: '#888888' }}>
-                  INFORMACIÓN DEL PERFIL
-                </div>
-                <div className="text-sm text-white">
-                  Bienvenido a {appName}. Tu ID de usuario es: <span style={{ color: '#FFC107' }}>{userId}</span>
-                </div>
-              </div>
-            </div>
-          )}
+        <div className="flex flex-col items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <h1
+              className="font-black text-3xl mb-3"
+              style={{
+                background: 'linear-gradient(135deg, #FFD700 0%, #FFC107 40%, #B8860B 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
+              Perfil
+            </h1>
+            <p className="text-sm" style={{ color: '#888888' }}>
+              Bienvenido a tu perfil
+            </p>
+          </div>
         </div>
       </div>
 
@@ -55,22 +41,20 @@ export default function Perfil() {
         <NavItem
           icon={<Home size={24} />}
           label="Inicio"
-          isActive={activeTab === 'home'}
-          onClick={() => setActiveTab('home')}
+          onClick={() => navigate('/inicio')}
         />
 
         {/* Levels */}
         <NavItem
           icon={<Zap size={24} />}
           label="Niveles"
-          isActive={activeTab === 'levels'}
-          onClick={() => setActiveTab('levels')}
+          onClick={() => navigate('/niveles')}
         />
 
         {/* Tasks - Center Active Button */}
         <div className="flex flex-col items-center gap-1 relative">
           <button
-            onClick={() => setActiveTab('tasks')}
+            onClick={() => navigate('/tareas')}
             className="relative flex items-center justify-center"
             style={{
               width: '64px',
@@ -99,7 +83,7 @@ export default function Perfil() {
           </button>
           <span
             className="text-xs font-semibold mt-1"
-            style={{ color: activeTab === 'tasks' ? '#FFC107' : '#999999' }}
+            style={{ color: '#999999' }}
           >
             Tareas
           </span>
@@ -109,16 +93,15 @@ export default function Perfil() {
         <NavItem
           icon={<Users size={24} />}
           label="Equipo"
-          isActive={activeTab === 'team'}
-          onClick={() => setActiveTab('team')}
+          onClick={() => navigate('/equipo')}
         />
 
         {/* Profile */}
         <NavItem
           icon={<User size={24} />}
           label="Yo"
-          isActive={activeTab === 'profile'}
-          onClick={() => setActiveTab('profile')}
+          onClick={() => navigate('/perfil')}
+          isActive
         />
       </nav>
     </div>
@@ -128,13 +111,13 @@ export default function Perfil() {
 function NavItem({
   icon,
   label,
-  isActive,
   onClick,
+  isActive = false,
 }: {
   icon: React.ReactNode;
   label: string;
-  isActive: boolean;
   onClick: () => void;
+  isActive?: boolean;
 }) {
   return (
     <button

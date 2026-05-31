@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Sparkles } from 'lucide-react';
-import { supabase } from '../lib/supabase';
 
 interface Particle {
   id: number;
@@ -102,27 +101,10 @@ export default function Login() {
     }
 
     setLoading(true);
-
-    try {
-      const email = `user_${formData.phone}@disney.local`;
-
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password: formData.password,
-      });
-
-      if (signInError) {
-        setError('Teléfono o contraseña incorrectos');
-        setLoading(false);
-        return;
-      }
-
+    setTimeout(() => {
       navigate('/perfil');
-    } catch (err) {
-      setError('Error al iniciar sesión. Intenta de nuevo.');
-    } finally {
       setLoading(false);
-    }
+    }, 1000);
   };
 
   return (

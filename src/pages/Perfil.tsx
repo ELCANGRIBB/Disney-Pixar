@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { User, Crown, Wallet, Coins, Sparkles, TrendingUp, Calendar, CalendarDays, CalendarClock, DollarSign, Users, UserPlus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { User, Crown, Wallet, Coins, Sparkles, TrendingUp, Calendar, CalendarDays, CalendarClock, DollarSign, Users, UserPlus, ChevronRight, ArrowDownToLine, ArrowUpFromLine, BarChart3, Receipt } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface Particle {
@@ -32,6 +33,7 @@ function formatDate(date: Date): string {
 }
 
 export default function Perfil() {
+  const navigate = useNavigate();
   const [particles] = useState(() => generateParticles(60));
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -368,6 +370,41 @@ export default function Perfil() {
             />
           </div>
         </div>
+
+        {/* Menu Options */}
+        <div className="w-full max-w-lg mt-6">
+          <div className="flex items-center gap-2 mb-4 px-1">
+            <span
+              className="text-xs font-extrabold tracking-[0.25em] uppercase"
+              style={{ color: '#FFC107' }}
+            >
+              Menú
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-2.5">
+            <MenuOption
+              icon={<ArrowDownToLine size={20} />}
+              label="Recargar"
+              onClick={() => navigate('/recargar')}
+            />
+            <MenuOption
+              icon={<ArrowUpFromLine size={20} />}
+              label="Retiros"
+              onClick={() => navigate('/retiros')}
+            />
+            <MenuOption
+              icon={<BarChart3 size={20} />}
+              label="Registro de Recarga"
+              onClick={() => navigate('/historial-recargas')}
+            />
+            <MenuOption
+              icon={<Receipt size={20} />}
+              label="Registro de Retiros"
+              onClick={() => navigate('/historial-retiros')}
+            />
+          </div>
+        </div>
       </div>
 
       <style>{`
@@ -432,5 +469,45 @@ function StatCard({
         {value}
       </p>
     </div>
+  );
+}
+
+function MenuOption({
+  icon,
+  label,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+}) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <button
+      onClick={onClick}
+      className="w-full flex items-center justify-between rounded-xl transition-all duration-300 active:scale-[0.98]"
+      style={{
+        background: hovered ? 'rgba(255,193,7,0.08)' : '#1A1A1A',
+        border: `1px solid ${hovered ? 'rgba(255,193,7,0.4)' : 'rgba(255,193,7,0.15)'}`,
+        boxShadow: hovered
+          ? '0 0 20px rgba(255,193,7,0.12), inset 0 1px 0 rgba(255,255,255,0.04)'
+          : '0 0 12px rgba(255,193,7,0.04), inset 0 1px 0 rgba(255,255,255,0.02)',
+        padding: '16px 18px',
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div className="flex items-center gap-3">
+        <div
+          className="w-9 h-9 rounded-lg flex items-center justify-center"
+          style={{ background: 'rgba(255,193,7,0.1)' }}
+        >
+          <span style={{ color: '#FFC107' }}>{icon}</span>
+        </div>
+        <span className="text-sm font-bold text-white">{label}</span>
+      </div>
+      <ChevronRight size={18} style={{ color: '#888888' }} />
+    </button>
   );
 }

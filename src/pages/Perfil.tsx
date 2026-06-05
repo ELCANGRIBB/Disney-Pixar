@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { User, Crown, Wallet, Coins, Sparkles } from 'lucide-react';
+import { User, Crown, Wallet, Coins, Sparkles, TrendingUp, Calendar, CalendarDays, CalendarClock, DollarSign, Users, UserPlus } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface Particle {
@@ -40,6 +40,14 @@ export default function Perfil() {
   const [fechaIngreso, setFechaIngreso] = useState(() => formatDate(new Date()));
   const [saldoPersonal, setSaldoPersonal] = useState(0);
   const [saldoIngresos, setSaldoIngresos] = useState(0);
+
+  const [gananciasAyer, setGananciasAyer] = useState(0);
+  const [gananciasHoy, setGananciasHoy] = useState(0);
+  const [gananciasSemana, setGananciasSemana] = useState(0);
+  const [gananciasMes, setGananciasMes] = useState(0);
+  const [ingresosTotales, setIngresosTotales] = useState(0);
+  const [tareasEquipo, setTareasEquipo] = useState(0);
+  const [ingresosRecomendacion, setIngresosRecomendacion] = useState(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -297,6 +305,69 @@ export default function Perfil() {
             </div>
           </div>
         </div>
+
+        {/* Earnings Statistics */}
+        <div className="w-full max-w-lg mt-5">
+          <div className="flex items-center gap-2 mb-4 px-1">
+            <TrendingUp size={14} style={{ color: '#FFC107' }} />
+            <span
+              className="text-xs font-extrabold tracking-[0.2em] uppercase"
+              style={{ color: '#FFC107' }}
+            >
+              Estadísticas de Ganancias
+            </span>
+          </div>
+
+          {/* Row 1: Yesterday & Today */}
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <StatCard
+              icon={<Calendar size={14} />}
+              title="Ganancias de Ayer"
+              value={formatMoney(gananciasAyer)}
+            />
+            <StatCard
+              icon={<CalendarDays size={14} />}
+              title="Ganancias de Hoy"
+              value={formatMoney(gananciasHoy)}
+            />
+          </div>
+
+          {/* Row 2: Month & Week */}
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <StatCard
+              icon={<CalendarClock size={14} />}
+              title="Ganancias Este Mes"
+              value={formatMoney(gananciasMes)}
+            />
+            <StatCard
+              icon={<Calendar size={14} />}
+              title="Ganancias Esta Semana"
+              value={formatMoney(gananciasSemana)}
+            />
+          </div>
+
+          {/* Row 3: Total, Team, Referral */}
+          <div className="grid grid-cols-3 gap-3">
+            <StatCard
+              icon={<DollarSign size={14} />}
+              title="Ingresos Totales"
+              value={formatMoney(ingresosTotales)}
+              compact
+            />
+            <StatCard
+              icon={<Users size={14} />}
+              title="Delegación Tareas en Equipo"
+              value={formatMoney(tareasEquipo)}
+              compact
+            />
+            <StatCard
+              icon={<UserPlus size={14} />}
+              title="Ingresos por Recomendación"
+              value={formatMoney(ingresosRecomendacion)}
+              compact
+            />
+          </div>
+        </div>
       </div>
 
       <style>{`
@@ -307,6 +378,59 @@ export default function Perfil() {
           100% { transform: translateY(-100vh) scale(0.5); opacity: 0; }
         }
       `}</style>
+    </div>
+  );
+}
+
+function StatCard({
+  icon,
+  title,
+  value,
+  compact = false,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  value: string;
+  compact?: boolean;
+}) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <div
+      className="rounded-2xl transition-all duration-300"
+      style={{
+        background: '#1A1A1A',
+        border: `1px solid ${hovered ? 'rgba(255,193,7,0.45)' : 'rgba(255,193,7,0.2)'}`,
+        boxShadow: hovered
+          ? '0 0 24px rgba(255,193,7,0.18), inset 0 1px 0 rgba(255,255,255,0.04)'
+          : '0 0 16px rgba(255,193,7,0.06), inset 0 1px 0 rgba(255,255,255,0.02)',
+        padding: compact ? '14px 10px' : '18px 14px',
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div className="flex items-center gap-1.5 mb-2">
+        <div style={{ color: '#FFC107' }}>{icon}</div>
+        <span
+          className="font-bold uppercase tracking-wider leading-tight"
+          style={{
+            color: '#888888',
+            fontSize: compact ? '0.55rem' : '0.65rem',
+          }}
+        >
+          {title}
+        </span>
+      </div>
+      <p
+        className="font-black"
+        style={{
+          color: '#FFC107',
+          fontSize: compact ? '0.95rem' : '1.2rem',
+          lineHeight: 1.2,
+        }}
+      >
+        {value}
+      </p>
     </div>
   );
 }
